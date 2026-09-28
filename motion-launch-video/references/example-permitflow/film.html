@@ -1,0 +1,711 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>PermitFlow Showreel</title>
+<style>
+@font-face{font-family:'Public Sans';font-weight:400 700;src:url(public-sans-normal-400-latin.woff2) format('woff2')}
+@font-face{font-family:'Instrument Serif';font-style:normal;src:url(instrument-serif-normal-400-latin.woff2) format('woff2')}
+@font-face{font-family:'Instrument Serif';font-style:italic;src:url(instrument-serif-italic-400-latin.woff2) format('woff2')}
+@font-face{font-family:'IBM Plex Mono';font-weight:400;src:url(ibm-plex-mono-normal-400-latin.woff2) format('woff2')}
+@font-face{font-family:'IBM Plex Mono';font-weight:500;src:url(ibm-plex-mono-normal-500-latin.woff2) format('woff2')}
+:root{
+  --bg:#0E131A;--bg2:#1B2430;--red:#A8192A;--pink:#EFB8BE;--mist:#AEB6C2;--line:#D9DEE5;
+  --text:#1B2430;--text2:#465060;--text3:#616C7A;--s2:#F9FAFB;
+  --ok:#067647;--okS:#ECFDF3;--okL:#A6E9C4;--warn:#9A4A00;--warnS:#FFF6E5;--warnL:#F5CF86;
+  --err:#B42318;--errS:#FEF3F2;--errL:#F4B7B1;--info:#175CD3;--infoS:#EEF4FF;--infoL:#B2CCFA;
+  --neu:#475467;--neuS:#F2F4F7;--neuL:#D0D5DD;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1920px;height:1080px;overflow:hidden;background:var(--bg)}
+body{font-family:'Public Sans',sans-serif;color:#fff;-webkit-font-smoothing:antialiased}
+#stage{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:hidden;background:var(--bg)}
+.abs{position:absolute}
+.scene{position:absolute;inset:0;transform-origin:960px 540px;visibility:hidden}
+.serif{font-family:'Instrument Serif',serif;font-weight:400;line-height:1.02;letter-spacing:-.01em}
+.it{font-style:italic;color:var(--pink)}
+.mono{font-family:'IBM Plex Mono',monospace}
+.mk{display:inline-block;overflow:hidden;vertical-align:top;padding:0 .08em .2em;margin:0 -.08em -.2em}
+.mk>span{display:inline-block;will-change:transform}
+.card{position:absolute;background:#fff;border-radius:18px;color:var(--text);
+  box-shadow:0 50px 90px -30px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.05)}
+.pill{display:inline-flex;align-items:center;gap:10px;height:40px;padding:0 18px;border-radius:999px;
+  font:600 20px/1 'Public Sans';border:1.5px solid;white-space:nowrap}
+.pill i{width:10px;height:10px;border-radius:50%;background:currentColor;flex:none}
+.p-info{color:var(--info);background:var(--infoS);border-color:var(--infoL)}
+.p-warn{color:var(--warn);background:var(--warnS);border-color:var(--warnL)}
+.p-ok{color:var(--ok);background:var(--okS);border-color:var(--okL)}
+.p-neu{color:var(--neu);background:var(--neuS);border-color:var(--neuL)}
+.p-err{color:var(--err);background:var(--errS);border-color:var(--errL)}
+.tag{display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 12px;border-radius:6px;
+  font:600 17px/1 'Public Sans';border:1.5px solid;white-space:nowrap}
+.eyebrow{font:500 22px/1 'IBM Plex Mono';letter-spacing:.22em;color:var(--mist);text-transform:uppercase;white-space:pre}
+svg{overflow:visible}
+/* bg */
+#glowA,#glowB{position:absolute;border-radius:50%;pointer-events:none}
+#glowA{width:1800px;height:1800px;left:0;top:0;background:radial-gradient(closest-side,rgba(168,25,42,.62),rgba(168,25,42,.18) 55%,rgba(168,25,42,0))}
+#glowB{width:1400px;height:1400px;left:0;top:0;background:radial-gradient(closest-side,rgba(120,20,34,.5),rgba(120,20,34,0))}
+#dots{position:absolute;left:-96px;top:-96px;width:2208px;height:1272px;
+  background-image:radial-gradient(rgba(255,255,255,.55) 1.2px,transparent 1.6px);background-size:48px 48px;opacity:.07}
+#vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,rgba(0,0,0,0) 60%,rgba(0,0,0,.42) 100%)}
+#grain{position:absolute;inset:0;width:1920px;height:1080px;pointer-events:none;opacity:.075;mix-blend-mode:overlay;image-rendering:pixelated}
+#flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;mix-blend-mode:overlay}
+/* hud */
+#hud{display:none!important;position:absolute;inset:0;pointer-events:none;font:500 17px/1 'IBM Plex Mono';letter-spacing:.18em;color:rgba(174,182,194,.8)}
+#hud .c{position:absolute;white-space:pre}
+.tick{position:absolute;width:18px;height:18px;border-color:rgba(174,182,194,.5);border-style:solid}
+/* s3 rows */
+.row{position:absolute;left:0;width:100%;height:104px;display:flex;align-items:center;padding:0 40px;gap:24px;border-top:1.5px solid #EEF0F3}
+.num{width:52px;height:52px;border-radius:50%;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;
+  font:500 19px 'IBM Plex Mono';color:var(--text3);flex:none;position:relative}
+.rt{font:600 26px/1.2 'Public Sans'}
+.rs{font:400 18px/1.3 'Public Sans';color:var(--text3);margin-top:4px}
+/* tiles */
+.tile{width:390px;height:410px;padding:26px}
+.ficon{width:52px;height:52px;border-radius:10px;background:var(--bg2);display:flex;align-items:center;justify-content:center;flex:none}
+.prev{position:absolute;left:26px;right:26px;top:128px;height:164px;background:var(--s2);border:1.5px solid #EEF0F3;border-radius:10px;overflow:hidden}
+.ln{position:absolute;left:22px;height:10px;border-radius:5px;background:#DDE2E8}
+.beam{position:absolute;left:-10px;right:-10px;height:3px;background:var(--info);box-shadow:0 0 18px 4px rgba(23,92,211,.55),0 0 60px 10px rgba(23,92,211,.25)}
+.scanfill{position:absolute;left:0;right:0;top:0;background:rgba(23,92,211,.07)}
+.stat{position:absolute;left:26px;right:26px;bottom:26px;height:60px;display:flex;align-items:center;gap:14px}
+.sic{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none}
+.st{font:600 21px/1.2 'Public Sans'}
+.ss{font:400 16px/1.2 'Public Sans';color:var(--text3);margin-top:3px}
+.ibar{position:absolute;left:84px;right:0;bottom:4px;height:4px;background:#E4ECFB;border-radius:2px;overflow:hidden}
+.ibar b{position:absolute;top:0;height:100%;width:40%;background:var(--info);border-radius:2px}
+/* s5 */
+.lrow{position:absolute;left:0;width:100%;height:92px;display:flex;align-items:center;padding:0 34px;gap:20px;border-top:1.5px solid #EEF0F3}
+.lock{width:40px;height:40px;display:flex;align-items:center;justify-content:center;flex:none}
+/* s6 */
+.node{position:absolute;width:0;height:0}
+.dot{position:absolute;left:-15px;top:-15px;width:30px;height:30px;border-radius:50%;background:var(--bg);border:3px solid rgba(255,255,255,.25)}
+.dot b{position:absolute;inset:5px;border-radius:50%;background:#fff}
+.cap{position:absolute;top:44px;left:0;transform:translateX(-50%);font:500 19px/1.3 'IBM Plex Mono';color:var(--mist);letter-spacing:.06em;white-space:nowrap;text-align:center}
+.nb{position:absolute;bottom:40px;left:0;transform:translateX(-50%)}
+.log{position:absolute;left:0;height:40px;display:flex;gap:34px;font:400 21px/40px 'IBM Plex Mono';color:var(--mist);white-space:pre}
+.log .k{color:#fff}
+.role{display:inline-flex;align-items:center;gap:10px;height:44px;padding:0 20px;border-radius:999px;border:1.5px solid rgba(255,255,255,.28);font:600 20px/1 'Public Sans';color:#fff}
+/* odometer */
+.odo{display:block;overflow:hidden;height:40px;line-height:40px;width:.62em;position:relative}
+.odo .col{position:absolute;left:0;top:0;width:100%}
+.odo span{display:block;height:40px}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="bg"><div id="glowA"></div><div id="glowB"></div><div id="dots"></div></div>
+
+  <!-- ============ S1 + S2: mark build and lockup ============ -->
+  <div class="abs" id="w1" style="left:0;top:0;width:1920px;height:1080px"><div class="scene" id="s1">
+    <div id="ring1" class="abs" style="left:760px;top:340px;width:400px;height:400px;border-radius:50%;border:2px solid rgba(239,184,190,.7)"></div>
+    <div id="ring2" class="abs" style="left:760px;top:340px;width:400px;height:400px;border-radius:50%;border:1px solid rgba(168,25,42,.9)"></div>
+    <div id="rays" class="abs" style="left:960px;top:540px"></div>
+    <div id="markWrap" class="abs" style="left:850px;top:430px;width:220px;height:220px">
+      <div id="markBox" class="abs" style="background:var(--red);left:50%;top:50%"></div>
+      <svg id="markGlyph" class="abs" style="left:0;top:0" width="220" height="220" viewBox="0 0 32 32">
+        <g fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+          <path id="g1" d="M9 10h14" pathLength="1"/>
+          <path id="g2" d="M9 16h9" pathLength="1"/>
+          <path id="g3" d="M9 22h4" pathLength="1"/>
+          <path id="g4" d="M16.5 22l2.5 2.5L24 18" pathLength="1"/>
+        </g>
+      </svg>
+    </div>
+    <div id="word" class="abs" style="top:462px;font:700 150px/1 'Public Sans';letter-spacing:-.02em;white-space:nowrap">PermitFlow</div>
+    <div id="eyebrow1" class="abs eyebrow" style="top:668px;font-size:26px"></div>
+    <div id="eyeLine" class="abs" style="top:716px;height:2px;background:var(--red)"></div>
+  </div></div>
+
+  <!-- wipe slabs -->
+  <div id="slabs" class="abs" style="left:0;top:0;width:1920px;height:1080px;pointer-events:none">
+    <div id="slab1" class="abs" style="top:-200px;height:1480px;width:900px;background:#2A3442"></div>
+    <div id="slab2" class="abs" style="top:-200px;height:1480px;width:1500px;background:var(--red)"></div>
+    <div id="slab3" class="abs" style="top:-200px;height:1480px;width:60px;background:var(--pink)"></div>
+  </div>
+
+  <!-- ============ S3: apply once ============ -->
+  <div class="abs" id="w3" style="left:0;top:0;width:1920px;height:1080px"><div class="scene" id="s3">
+    <div class="abs serif" style="left:140px;top:250px;font-size:240px" id="h3a"><span class="mk"><span>Apply</span></span></div>
+    <div class="abs serif it" style="left:140px;top:490px;font-size:240px" id="h3b"><span class="mk"><span>once.</span></span></div>
+    <div class="abs" id="sub3" style="left:146px;top:790px;font:400 32px/1.4 'Public Sans';color:var(--mist);width:760px">Four short sections. Each one validates as you go.</div>
+    <div class="abs eyebrow" id="eb3" style="left:146px;top:200px;color:var(--pink)">01 · APPLY</div>
+    <div id="form" class="card" style="left:1060px;top:150px;width:720px;height:780px;transform-origin:0 50%">
+      <div class="abs" style="left:40px;top:38px;right:40px;display:flex;justify-content:space-between;align-items:center">
+        <div class="mono" style="font-size:18px;color:var(--text3);letter-spacing:.04em">FEL-2026-000005</div>
+        <div id="fBadge" style="position:relative;height:40px;width:190px">
+          <span id="fDraft" class="pill p-neu abs" style="right:0"><i></i>Draft</span>
+          <span id="fSub" class="pill p-info abs" style="right:0"><i></i>Submitted</span>
+        </div>
+      </div>
+      <div class="abs" style="left:40px;top:84px;font:600 40px/1.2 'Public Sans';letter-spacing:-.015em">New application</div>
+      <div class="abs" style="left:40px;top:140px;font:400 20px 'Public Sans';color:var(--text3)">Food Establishment Licence · Kopi Corner Pte Ltd</div>
+      <div class="abs" style="left:40px;right:40px;top:200px;height:8px;border-radius:4px;background:#EEF0F3;overflow:hidden"><div id="fBar" style="height:100%;width:0;background:var(--ok);border-radius:4px"></div></div>
+      <div class="abs mono" id="fCount" style="left:40px;top:222px;font-size:18px;color:var(--text3)">0 of 4 sections complete</div>
+      <div class="abs" style="left:0;right:0;top:270px;height:416px" id="rows">
+        <div id="active" class="abs" style="left:0;width:100%;height:104px;background:var(--neuS);border-left:5px solid var(--red)"></div>
+      </div>
+      <div class="abs" style="left:40px;right:40px;bottom:36px;display:flex;justify-content:flex-end">
+        <div id="fBtn" style="position:relative;overflow:hidden;height:60px;padding:0 30px;border-radius:8px;background:var(--red);color:#fff;font:600 22px/60px 'Public Sans'">
+          <div id="fBtnSweep" class="abs" style="left:0;top:0;bottom:0;background:#8A1422"></div>
+          <span style="position:relative">Submit application</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  </div>
+  <!-- ============ S4: documents checked ============ -->
+  <div class="scene" id="s4">
+    <div class="abs eyebrow" id="eb4" style="left:146px;top:112px;color:var(--pink)">02 · CHECK</div>
+    <div class="abs serif" style="left:140px;top:158px;font-size:128px;white-space:nowrap" id="h4"><span class="mk"><span>Checked</span></span> <span class="mk"><span>before</span></span> <span class="mk it"><span>you</span></span> <span class="mk it"><span>submit.</span></span></div>
+    <div id="tiles"></div>
+    <div class="abs eyebrow" id="band4" style="left:0;width:1920px;text-align:center;top:960px;font-size:20px">AUTOMATED CHECK  ·  ADVISORY ONLY  ·  OFFICERS DECIDE</div>
+  </div>
+
+  <!-- ============ S5: fix only what was flagged ============ -->
+  <div class="scene" id="s5">
+    <div class="abs eyebrow" id="eb5" style="left:146px;top:112px;color:var(--pink)">03 · FIX</div>
+    <div class="abs serif" style="left:140px;top:158px;font-size:128px;white-space:nowrap" id="h5"><span class="mk"><span>Fix</span></span> <span class="mk"><span>only</span></span> <span class="mk"><span>what</span></span> <span class="mk"><span>was</span></span> <span class="mk it"><span>flagged.</span></span></div>
+    <div id="list5" class="card" style="left:140px;top:360px;width:820px;height:600px;overflow:hidden">
+      <div class="abs" style="left:34px;top:30px;font:600 26px 'Public Sans'">Your application</div>
+      <div class="abs mono" style="right:34px;top:34px;font-size:17px;color:var(--text3)">REVISION 2</div>
+      <div id="lrows" class="abs" style="left:0;right:0;top:86px;bottom:0"></div>
+    </div>
+    <svg id="conn" class="abs" style="left:0;top:0" width="1920" height="1080"><path id="connP" d="M1020 470 C 990 470, 990 590, 930 590" fill="none" stroke="var(--warnL)" stroke-width="3" stroke-dasharray="1" pathLength="1" stroke-linecap="round"/></svg>
+    <div id="fb5" class="card" style="left:1020px;top:360px;width:760px;height:320px">
+      <div class="abs" style="left:32px;top:30px;display:flex;align-items:center;gap:16px">
+        <div id="fbNum" style="position:relative;width:48px;height:48px;border-radius:50%;background:#C26A00;color:#fff;font:500 22px/48px 'IBM Plex Mono';text-align:center">
+          <span id="fbOne">1</span>
+          <svg id="fbChk" class="abs" style="left:12px;top:12px" width="24" height="24" viewBox="0 0 24 24"><path id="fbChkP" d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" pathLength="1"/></svg>
+        </div>
+        <span class="tag p-neu">Section: Premises</span>
+        <div style="position:relative;width:170px;height:40px">
+          <span id="fbOpen" class="pill p-warn abs"><i></i>Open</span>
+          <span id="fbAddr" class="pill p-info abs"><i></i>Addressed</span>
+          <span id="fbRes" class="pill p-ok abs"><i></i>Resolved</span>
+        </div>
+      </div>
+      <div class="abs" style="left:32px;right:32px;top:106px;font:400 27px/1.4 'Public Sans'">The floor area on the form does not match the floor plan. Please update it.</div>
+      <div class="abs mono" style="left:32px;top:220px;font-size:17px;color:var(--text3);letter-spacing:.03em">Licensing officer · Round 1 · 19 Sep</div>
+      <div class="abs" id="fbCtx" style="left:32px;top:256px;font:400 19px 'Public Sans';color:var(--text2)">Changed: floor area 48 → 62</div>
+    </div>
+    <div id="doc5" class="card" style="left:1020px;top:720px;width:760px;height:240px">
+      <div class="abs" style="left:30px;top:30px;display:flex;gap:18px;align-items:center">
+        <div class="ficon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg></div>
+        <div><div style="font:600 25px 'Public Sans'"><span class="mono" style="font-size:18px;color:var(--text3);margin-right:10px">04</span>Food hygiene certificate</div>
+        <div class="mono" style="position:relative;height:26px;width:560px;overflow:hidden;font-size:17px;color:var(--text3);margin-top:6px">
+          <div id="d5old" class="abs">food_hygiene_certificate.pdf · 139 KB</div>
+          <div id="d5new" class="abs">food_hygiene_certificate_2027.pdf · 146 KB</div></div></div>
+      </div>
+      <div class="abs" style="left:30px;bottom:32px;display:flex;align-items:center;gap:14px">
+        <div style="position:relative;width:300px;height:40px">
+          <span id="d5iss" class="pill p-warn abs"><i></i>1 issue to check</span>
+          <span id="d5ok" class="pill p-ok abs"><i></i>Verified</span>
+        </div>
+      </div>
+      <div class="abs" id="d5rep" style="right:30px;bottom:36px"><span class="tag p-info">Replaced</span></div>
+    </div>
+  </div>
+
+  <!-- ============ S6: every step on record ============ -->
+  <div class="scene" id="s6">
+    <div class="abs eyebrow" id="eb6" style="left:146px;top:112px;color:var(--pink)">04 · TRACK</div>
+    <div class="abs serif" style="left:140px;top:158px;font-size:128px;white-space:nowrap" id="h6"><span class="mk"><span>Every</span></span> <span class="mk"><span>step,</span></span> <span class="mk it"><span>on</span></span> <span class="mk it"><span>record.</span></span></div>
+    <div id="track" class="abs" style="left:0;top:560px;width:3000px;height:0">
+      <div class="abs" style="left:240px;top:-1.5px;width:2080px;height:3px;background:rgba(255,255,255,.12)"></div>
+      <div id="rule" class="abs" style="left:240px;top:-2px;height:4px;background:#fff;box-shadow:0 0 16px rgba(255,255,255,.6)"></div>
+      <div id="ruleHead" class="abs" style="top:-7px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 0 30px 8px rgba(255,255,255,.55)"></div>
+      <div id="nodes"></div>
+    </div>
+    <div id="logWrap" class="abs" style="left:146px;top:760px;width:1100px;height:200px;overflow:hidden"><div id="logs" class="abs" style="left:0;top:0;width:100%"></div></div>
+    <div class="abs eyebrow" id="rolesEb" style="left:1340px;top:770px;font-size:18px">THREE ROLES · ONE RECORD</div>
+    <div class="abs" id="roles" style="left:1340px;top:818px;display:flex;gap:14px">
+      <span class="role">Operator</span><span class="role">Officer</span><span class="role">Admin</span>
+    </div>
+  </div>
+
+  <!-- ============ S7: licence issued ============ -->
+  <div class="scene" id="s7" style="perspective:2200px">
+    <div class="abs eyebrow" id="eb7" style="left:146px;top:112px;color:var(--pink)">05 · ISSUE</div>
+    <div class="abs" id="apPill" style="left:0;width:1920px;top:118px;text-align:center"><span class="pill p-ok" style="height:56px;font-size:26px;padding:0 26px;gap:14px"><i style="width:13px;height:13px"></i>Approved · licence issued</span></div>
+    <div id="cert" class="card" style="left:400px;top:230px;width:1120px;height:640px;overflow:hidden;transform-origin:50% 100%">
+      <div class="abs" style="left:0;top:0;width:100%;height:12px;background:var(--red)"></div>
+      <div class="abs" style="left:56px;top:62px;display:flex;align-items:center;gap:16px">
+        <svg width="52" height="52" viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="#A8192A"/><path d="M9 10h14M9 16h9M9 22h4M16.5 22l2.5 2.5L24 18" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div style="font:700 32px 'Public Sans';letter-spacing:-.01em;color:var(--text)">PermitFlow</div>
+      </div>
+      <div class="abs eyebrow" style="right:56px;top:80px;font-size:18px;color:var(--text3)">FOOD ESTABLISHMENT LICENCE</div>
+      <div class="abs" style="left:56px;right:56px;top:150px;height:1.5px;background:#EEF0F3"></div>
+      <div class="abs mono" style="left:56px;top:188px;font-size:19px;color:var(--text3);letter-spacing:.14em">LICENCE NUMBER</div>
+      <div class="abs mono" id="licNo" style="left:52px;top:220px;font-size:86px;font-weight:500;color:var(--text);letter-spacing:-.01em;white-space:pre"></div>
+      <div class="abs" style="left:56px;top:350px;font:600 38px 'Public Sans';letter-spacing:-.01em">Kopi Corner Pte Ltd</div>
+      <div class="abs" style="left:56px;top:406px;font:400 24px 'Public Sans';color:var(--text2)">Valid 19 Sep 2026 to 18 Sep 2027 · 12 Tanjong Pagar Road</div>
+      <div class="abs mono" style="left:56px;top:448px;font-size:19px;color:var(--text3)">Verification code 2CB2-CCAD-41DC</div>
+      <div class="abs" style="left:56px;bottom:56px;height:64px;padding:0 32px;border-radius:8px;background:var(--red);color:#fff;font:600 23px/64px 'Public Sans'">Download licence (PDF)</div>
+      <div id="sheen" class="abs" style="top:-200px;width:260px;height:1100px;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.75),rgba(255,255,255,0));transform:rotate(18deg);mix-blend-mode:soft-light"></div>
+      <div id="seal" class="abs" style="left:830px;top:360px;width:210px;height:210px">
+        <svg width="210" height="210" viewBox="0 0 210 210">
+          <defs><path id="sealArc" d="M105 105 m-78 0 a78 78 0 1 1 156 0 a78 78 0 1 1 -156 0"/></defs>
+          <circle cx="105" cy="105" r="100" fill="none" stroke="#A8192A" stroke-width="4"/>
+          <circle cx="105" cy="105" r="62" fill="none" stroke="#A8192A" stroke-width="2"/>
+          <text font-family="IBM Plex Mono" font-weight="500" font-size="15.5" letter-spacing="3.2" fill="#A8192A"><textPath href="#sealArc">APPROVED · VERIFIED · ON RECORD · FEL 2026 ·</textPath></text>
+          <g transform="translate(73 73) scale(2)"><rect width="32" height="32" rx="7" fill="#A8192A"/><path d="M9 10h14M9 16h9M9 22h4M16.5 22l2.5 2.5L24 18" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></g>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ S8: end card ============ -->
+  <div class="scene" id="s8">
+    <div id="endLock" class="abs" style="top:330px;height:130px;display:flex;align-items:center;gap:34px">
+      <div style="position:relative;width:124px;height:124px">
+        <div id="eBox" class="abs" style="inset:0;border-radius:27px;background:var(--red)"></div>
+        <svg class="abs" style="left:0;top:0" width="124" height="124" viewBox="0 0 32 32"><g fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+          <path id="e1" d="M9 10h14" pathLength="1"/><path id="e2" d="M9 16h9" pathLength="1"/><path id="e3" d="M9 22h4" pathLength="1"/><path id="e4" d="M16.5 22l2.5 2.5L24 18" pathLength="1"/></g></svg>
+      </div>
+      <div id="eWord" style="font:700 124px/1 'Public Sans';letter-spacing:-.02em;white-space:nowrap">PermitFlow</div>
+    </div>
+    <div id="tag8" class="abs serif" style="left:0;width:1920px;text-align:center;top:540px;font-size:86px"><span class="mk"><span>Checks</span></span> <span class="mk"><span>help</span></span> <span class="mk"><span>you.</span></span> <span class="mk"><span>Officers</span></span> <span class="mk it"><span>decide.</span></span></div>
+    <div id="url8" class="abs" style="left:0;width:1920px;text-align:center;top:680px;font:600 38px 'Public Sans';letter-spacing:.01em">permitflow.space</div>
+    <div id="disc8" class="abs" style="left:0;width:1920px;text-align:center;top:972px;font:400 20px 'Public Sans';color:#8A94A3">A fictional licensing service built for an engineering assessment. Not a government service.</div>
+  </div>
+
+  <div id="flash"></div>
+  <div id="vig"></div>
+  <canvas id="grain" width="960" height="540"></canvas>
+
+  <div id="hud">
+    <div class="c" id="hTL" style="left:56px;top:48px">PERMITFLOW  /  SHOWREEL</div>
+    <div class="c" id="hTR" style="right:56px;top:48px;text-align:right"></div>
+    <div class="c" id="hBL" style="left:56px;bottom:46px"></div>
+    <div class="c" id="hBR" style="right:56px;bottom:46px">FOOD ESTABLISHMENT LICENCE · SG</div>
+    <div class="abs" style="left:56px;right:56px;bottom:84px;height:1px;background:rgba(174,182,194,.18)"><div id="hProg" style="height:100%;width:0;background:var(--pink)"></div></div>
+    <div class="tick" style="left:24px;top:24px;border-width:2px 0 0 2px"></div>
+    <div class="tick" style="right:24px;top:24px;border-width:2px 2px 0 0"></div>
+    <div class="tick" style="left:24px;bottom:24px;border-width:0 0 2px 2px"></div>
+    <div class="tick" style="right:24px;bottom:24px;border-width:0 2px 2px 0"></div>
+  </div>
+</div>
+
+<script>
+// ---------- math & easing ----------
+const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
+const P=(t,a,b)=>clamp((t-a)/(b-a));
+const lerp=(a,b,x)=>a+(b-a)*x;
+const E={
+  lin:x=>x,
+  outCubic:x=>1-Math.pow(1-x,3),
+  inCubic:x=>x*x*x,
+  inOutCubic:x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2,
+  outQuint:x=>1-Math.pow(1-x,5),
+  outExpo:x=>x>=1?1:1-Math.pow(2,-10*x),
+  inExpo:x=>x<=0?0:Math.pow(2,10*x-10),
+  inOutExpo:x=>x<=0?0:x>=1?1:x<.5?Math.pow(2,20*x-10)/2:(2-Math.pow(2,-20*x+10))/2,
+  inOutQuart:x=>x<.5?8*x*x*x*x:1-Math.pow(-2*x+2,4)/2,
+  inOutSine:x=>-(Math.cos(Math.PI*x)-1)/2,
+  outBack:x=>{const c1=1.9,c3=c1+1;return 1+c3*Math.pow(x-1,3)+c1*Math.pow(x-1,2)},
+  spring:x=>x>=1?1:1-Math.exp(-6.5*x)*Math.cos(13*x),
+};
+const A=(t,a,b,e='outExpo')=>E[e](P(t,a,b));
+const $=id=>document.getElementById(id);
+function hash(n){n=(n<<13)^n;return 1-((n*(n*n*15731+789221)+1376312589)&0x7fffffff)/1073741824;} // -1..1
+function tf(el,o){
+  const s=el.style;
+  let t='';
+  if(o.x!==undefined||o.y!==undefined) t+=`translate3d(${(o.x||0).toFixed(2)}px,${(o.y||0).toFixed(2)}px,0) `;
+  if(o.rx) t+=`rotateX(${o.rx}deg) `;
+  if(o.ry) t+=`rotateY(${o.ry}deg) `;
+  if(o.r) t+=`rotate(${o.r}deg) `;
+  if(o.skx) t+=`skewX(${o.skx}deg) `;
+  if(o.s!==undefined) t+=`scale(${o.s}) `;
+  if(o.sx!==undefined||o.sy!==undefined) t+=`scale(${o.sx??1},${o.sy??1}) `;
+  s.transform=t||'none';
+  if(o.o!==undefined) s.opacity=clamp(o.o);
+  if(o.blur!==undefined) s.filter=o.blur>0.05?`blur(${o.blur.toFixed(2)}px)`:'none';
+}
+const vis=(el,on)=>{el.style.visibility=on?'visible':'hidden'};
+const dash=(el,p)=>{el.style.strokeDasharray='1 1';el.style.strokeDashoffset=(1-clamp(p)).toString()};
+
+// word/char reveal: spans inside .mk wrappers
+function reveal(root,t,start,stagger,dur,from=150,ease='outExpo'){
+  const inner=root.querySelectorAll('.mk>span');
+  inner.forEach((sp,i)=>{const p=A(t,start+i*stagger,start+i*stagger+dur,ease);sp.style.transform=`translate3d(0,${((1-p)*from).toFixed(2)}%,0) rotate(${((1-p)*6).toFixed(2)}deg)`;});
+}
+function hide(root,t,start,stagger,dur){ // words rise out
+  const inner=root.querySelectorAll('.mk>span');
+  inner.forEach((sp,i)=>{const p=A(t,start+i*stagger,start+i*stagger+dur,'inExpo');if(p>0)sp.style.transform=`translate3d(0,${(-p*110).toFixed(2)}%,0)`;});
+}
+const GL='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#/+';
+function scramble(txt,t,start,per,frameRate=24){
+  let out='';const fr=Math.floor(t*frameRate);
+  for(let i=0;i<txt.length;i++){
+    const c=txt[i];
+    const ti=start+i*per;
+    if(t>=ti+per*3||c===' '||c==='·') out+= (t<start && c!==' ')?' ':c;
+    else if(t<ti) out+=' ';
+    else out+=GL[Math.abs(Math.floor(hash(i*97+fr*13)*1000))%GL.length];
+  }
+  return out;
+}
+
+// ---------- build dynamic DOM ----------
+// wordmark chars
+function splitChars(el){const txt=el.textContent;el.innerHTML=[...txt].map(c=>`<span class="mk"><span>${c}</span></span>`).join('');}
+splitChars($('word'));splitChars($('eWord'));
+// rays
+for(let i=0;i<18;i++){const r=document.createElement('div');r.className='abs ray';r.style.cssText=`left:0;top:-2px;height:4px;border-radius:2px;background:${i%3===0?'#EFB8BE':i%3===1?'#fff':'#A8192A'};transform-origin:0 50%`;$('rays').appendChild(r);}
+// S3 rows
+const ROWS=[['Business','Name, UEN, contact person'],['Premises','Address, floor area, floor plan'],['Operations','Hours, seating, food handled'],['Declarations','Consent and declarations']];
+ROWS.forEach((r,i)=>{const d=document.createElement('div');d.className='row';d.style.top=(i*104)+'px';d.innerHTML=
+ `<div class="num"><span class="n">0${i+1}</span><div class="abs ck" style="inset:-2px;border-radius:50%;background:var(--ok)"></div><svg class="abs" style="left:13px;top:13px" width="26" height="26" viewBox="0 0 24 24"><path class="ckp" d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" pathLength="1"/></svg></div>
+  <div style="flex:1"><div class="rt">${r[0]}</div><div class="rs">${r[1]}</div></div>
+  <span class="tag p-ok done">Complete</span>`;$('rows').appendChild(d);});
+// S4 tiles
+const DOCS=[['01','ACRA business profile','acra_profile.pdf · 212 KB'],['02','Floor plan','floor_plan_01-23.pdf · 1.4 MB'],['03','Tenancy agreement','tenancy_signed.pdf · 860 KB'],['04','Food hygiene certificate','food_hygiene_cert.pdf · 139 KB']];
+DOCS.forEach((d,i)=>{const el=document.createElement('div');el.className='card tile';el.style.left=(135+i*420)+'px';el.style.top='430px';
+ let lines='';[[22,70],[48,88],[74,60],[100,82],[126,44]].forEach(([y,w],j)=>{lines+=`<div class="ln" style="top:${y}px;width:${w}%"></div>`});
+ el.innerHTML=`<div style="display:flex;gap:16px;align-items:center"><div class="ficon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg></div>
+  <div style="min-width:0"><div style="font:600 22px/1.2 'Public Sans';white-space:nowrap"><span class="mono" style="font-size:16px;color:var(--text3);margin-right:8px">${d[0]}</span>${d[1]}</div><div class="mono" style="font-size:15px;color:var(--text3);margin-top:6px;white-space:nowrap">${d[2]}</div></div></div>
+  <div class="prev">${lines}<div class="hl abs" style="left:14px;top:92px;height:26px;border-radius:5px;background:rgba(245,207,134,.55);border:1.5px solid var(--warnL)"></div><div class="hlt abs mono" style="left:24px;top:95px;font-size:15px;color:var(--warn);white-space:nowrap">Expired 3 Jan 2025</div><div class="scanfill"></div><div class="beam"></div></div>
+  <div class="stat">
+    <div class="sq abs" style="left:0;top:8px;display:flex;gap:14px;align-items:center"><div class="sic" style="background:var(--neuS)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#475467" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><div><div class="st" style="color:var(--neu)">Queued</div><div class="ss">The check will start shortly</div></div></div>
+    <div class="sr abs" style="left:0;top:8px;width:100%;display:flex;gap:14px;align-items:center"><div class="sic" style="background:var(--infoS)"><svg class="spin" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#175CD3" stroke-width="2.6" stroke-linecap="round"><path d="M12 3a9 9 0 1 1-9 9"/></svg></div><div><div class="st" style="color:var(--info)">Checking document…</div><div class="ss">Comparing with your form</div></div><div class="ibar"><b></b></div></div>
+    ${i<3?`<div class="sv abs" style="left:0;top:8px;display:flex;gap:14px;align-items:center"><div class="sic" style="background:var(--ok)"><svg width="24" height="24" viewBox="0 0 24 24"><path class="svp" d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" pathLength="1"/></svg></div><div><div class="st" style="color:var(--ok)">Verified</div><div class="ss">Matches your form</div></div></div>`
+    :`<div class="sv abs" style="left:0;top:8px;display:flex;gap:14px;align-items:center"><div class="sic" style="background:var(--warnS);border:1.5px solid var(--warnL)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9A4A00" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5 2.5 20h19z"/><path d="M12 10v4.5M12 17.2v.3"/></svg></div><div><div class="st" style="color:var(--warn)">1 issue to check</div><div class="ss">Certificate has expired</div></div></div>`}
+  </div>`;
+ $('tiles').appendChild(el);});
+const tiles=[...document.querySelectorAll('.tile')];
+// S5 rows
+const LR=['Business','Premises','Operations','Declarations'];
+LR.forEach((n,i)=>{const d=document.createElement('div');d.className='lrow';d.style.top=(i*92+(i>1?150:0))+'px';
+ d.innerHTML=`<div class="lock"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#616C7A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path class="shackle" d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+ <div style="flex:1;font:600 25px 'Public Sans'"><span class="mono" style="font-size:17px;color:var(--text3);margin-right:12px">0${i+1}</span>${n}</div>
+ <div style="position:relative;width:230px;height:32px"><span class="tag p-neu abs ro" style="right:0">Read only</span>${i===1?'<span class="tag p-warn abs op" style="right:0">Open for changes</span>':''}</div>`;
+ $('lrows').appendChild(d);
+ if(i===1){const f=document.createElement('div');f.id='field5';f.className='abs';f.style.cssText='left:34px;right:34px;top:'+(2*92)+'px;height:150px';
+  f.innerHTML=`<div style="font:600 19px 'Public Sans';color:var(--text2);margin-top:6px">Floor area (m²)</div>
+  <div id="inp5" style="margin-top:12px;height:66px;border:2px solid var(--line);border-radius:8px;display:flex;align-items:center;padding:0 20px;justify-content:space-between">
+   <div style="font:500 34px/1.2 'IBM Plex Mono';color:var(--text);display:flex"><span class="odo" id="od1"></span><span class="odo" id="od2"></span></div>
+   <span class="tag p-info" id="chg5">Changed · 48 → 62</span></div>`;
+  $('lrows').appendChild(f);}
+});
+// odometer digits
+['od1','od2'].forEach(id=>{const el=$(id);let h='';for(let k=0;k<30;k++)h+=`<span>${k%10}</span>`;el.innerHTML=`<div class="col">${h}</div>`;});
+// S6 nodes
+const NODES=[[240,'p-info','Submitted','Operator submits'],[760,'p-info','Under Review','Officer reviews'],[1280,'p-warn','Pending Resubmission','Flagged parts reopen'],[1800,'p-info','Site Visit Scheduled','Premises inspected'],[2320,'p-ok','Approved','Licence issued']];
+NODES.forEach(n=>{const d=document.createElement('div');d.className='node';d.style.left=n[0]+'px';d.style.top='0';
+ d.innerHTML=`<div class="nb"><span class="pill ${n[1]}" style="height:46px;font-size:22px"><i></i>${n[2]}</span></div><div class="dot"><b></b></div><div class="halo abs" style="left:-40px;top:-40px;width:80px;height:80px;border-radius:50%;border:2px solid #fff"></div><div class="cap">${n[3]}</div>`;
+ $('nodes').appendChild(d);});
+const nodes=[...document.querySelectorAll('.node')];
+const LOGS=[['19 Sep 09:12','application.submitted','operator','rev 1'],['19 Sep 11:40','status.changed','officer','under_review'],['20 Sep 10:05','feedback.released','officer','2 items'],['21 Sep 14:22','revision.submitted','operator','rev 2'],['23 Sep 10:00','site_visit.recorded','officer','satisfactory'],['24 Sep 16:30','licence.issued','officer','FEL-2026-000005']];
+LOGS.forEach((l,i)=>{const d=document.createElement('div');d.className='log';d.style.top=(i*40)+'px';d.innerHTML=`<span>${l[0]}</span><span class="k" style="width:340px">${l[1]}</span><span style="width:130px">${l[2]}</span><span>${l[3]}</span>`;$('logs').appendChild(d);});
+const logs=[...document.querySelectorAll('.log')];
+
+// grain
+const gctx=$('grain').getContext('2d');const gimg=gctx.createImageData(960,540);
+function grain(frame){let s=(frame*2654435761)>>>0;const d=gimg.data;for(let i=0;i<d.length;i+=4){s^=s<<13;s>>>=0;s^=s>>>17;s^=s<<5;s>>>=0;const v=s&255;d[i]=d[i+1]=d[i+2]=v;d[i+3]=255;}gctx.putImageData(gimg,0,0);}
+
+// layout measure (after fonts)
+let L={};
+function layout(){
+  const ww=$('word').offsetWidth; // 150px wordmark
+  const total=132+40+ww; const x0=960-total/2;
+  L.lockMarkCx=x0+66; L.wordX=x0+172;
+  $('word').style.left=L.wordX+'px';
+  const eb='FOOD ESTABLISHMENT LICENCE · SINGAPORE';
+  const tmp=$('eyebrow1');tmp.textContent=eb;const ew=tmp.offsetWidth;tmp.style.left=(960-ew/2)+'px';L.eb=eb;L.ebW=ew;
+  $('eyeLine').style.left=(960-ew/2)+'px';
+  const el=$('endLock');el.style.left=(960-el.offsetWidth/2)+'px';
+}
+
+// ---------- scenes ----------
+const DUR=20;
+function sceneBG(t){
+  // glow intensity curve
+  let k=0.35+0.65*A(t,1.3,2.2,'outCubic');
+  k+=0.35*Math.exp(-Math.pow((t-2.0)/0.18,2)); // drop pulse
+  k+=0.25*Math.exp(-Math.pow((t-16.95)/0.2,2));
+  const ax=900+Math.sin(t*0.45)*260+ (t>12.8&&t<16?-200:0)*A(t,12.8,13.3,'inOutCubic');
+  const ay=-300+Math.cos(t*0.37)*160;
+  tf($('glowA'),{x:ax,y:ay,s:0.9+0.1*Math.sin(t*0.8),o:k});
+  tf($('glowB'),{x:-500+Math.sin(t*0.3+1)*200,y:300+Math.cos(t*0.5)*120,o:k*0.8});
+  // dots parallax: drift + scene-based offsets
+  const pan= -A(t,12.75,13.25,'inOutExpo')*300 - A(t,13.6,15.4,'inOutCubic')*150;
+  tf($('dots'),{x:((t*14+pan)%48+48)%48-48,y:((t*6)%48)-48});
+  $('flash').style.opacity=(0.5*Math.exp(-Math.pow((t-2.0)/0.07,2))+0.35*Math.exp(-Math.pow((t-16.95)/0.06,2))).toFixed(3);
+}
+
+function s1(t){
+  const el=$('s1');const on=t<4.1;vis(el,on);if(!on)return;
+  // morph: dot -> line -> square
+  const pDot=A(t,0.05,0.35,'outBack');
+  const pW=A(t,0.3,0.62,'inOutExpo');
+  const pH=A(t,0.58,0.92,'outExpo');
+  let w=lerp(18*pDot,220,pW), h=lerp(18*pDot,220,pH);
+  if(t<0.3){w=h=18*pDot;}
+  if(t>=0.3&&t<0.58){h=lerp(18,6,A(t,0.3,0.45,'outCubic'));}
+  if(t>=0.58&&t<0.92){h=lerp(6,220,pH);}
+  const rad=Math.min(w,h)/2*(1-pH)+48*pH;
+  const mb=$('markBox');mb.style.width=w+'px';mb.style.height=h+'px';mb.style.marginLeft=(-w/2)+'px';mb.style.marginTop=(-h/2)+'px';mb.style.borderRadius=rad+'px';
+  dash($('g1'),A(t,0.86,1.12,'outCubic'));dash($('g2'),A(t,0.96,1.18,'outCubic'));dash($('g3'),A(t,1.04,1.22,'outCubic'));dash($('g4'),A(t,1.18,1.42,'outCubic'));
+  // hit at 1.45: squash & stretch
+  const hit=Math.exp(-Math.pow((t-1.47)/0.06,2));
+  // move to lockup: 1.72 -> 2.2
+  const pm=A(t,1.72,2.22,'inOutExpo');
+  const cx=lerp(960,L.lockMarkCx,pm), sc=lerp(1,0.6,pm);
+  const pre=t<1.45? lerp(0.85,1,A(t,0,1.45,'outCubic')):1;
+  tf($('markWrap'),{x:cx-960,y:0,s:sc*pre*(1+0.08*hit),r:lerp(-8,0,A(t,0.3,1.2,'outCubic'))});
+  // rings
+  const pr=P(t,1.44,2.3);
+  tf($('ring1'),{s:lerp(0.55,2.6,E.outExpo(pr)),o:(1-pr)*(pr>0?0.9:0)});
+  const pr2=P(t,1.5,2.5);tf($('ring2'),{s:lerp(0.55,3.6,E.outExpo(pr2)),o:(1-pr2)*(pr2>0?0.7:0)});
+  // rays
+  document.querySelectorAll('.ray').forEach((r,i)=>{
+    const ang=i/18*360+hash(i+5)*8; const p=P(t,1.45+hash(i)*0.04,2.05+hash(i+9)*0.15);
+    const d0=150+E.outExpo(p)*(260+120*hash(i+3)); const len=lerp(90,0,E.inCubic(p))*(0.6+0.4*Math.abs(hash(i+7)));
+    r.style.width=len+'px'; r.style.transform=`rotate(${ang}deg) translateX(${d0}px)`; r.style.opacity=p>0&&p<1?1:0;
+  });
+  // wordmark
+  reveal($('word'),t,2.02,0.035,0.7,150);
+  // eyebrow scramble
+  const eb=$('eyebrow1'); eb.textContent=scramble(L.eb,t,2.45,0.018);
+  $('eyeLine').style.width=(L.ebW*A(t,2.5,3.2,'inOutExpo'))+'px';
+  // push-in + exit
+  const push=1+0.05*A(t,2.0,3.9,'lin');
+  const ex=A(t,3.5,3.9,'inExpo');
+  tf(el,{s:push*(1+ex*0.15),x:-ex*260,blur:ex*10,o:1-A(t,3.78,3.9,'lin')});
+}
+
+function slabs(t){
+  // diagonal wipe 3.5 -> 4.15
+  const p1=A(t,3.48,4.02,'inOutExpo'),p2=A(t,3.53,4.1,'inOutExpo'),p3=A(t,3.56,4.14,'inOutExpo');
+  const x1=lerp(2300,-1400,p1),x2=lerp(2400,-1900,p2),x3=lerp(2350+1500,-400,p3);
+  const lead=Math.min(x1,x2,x3),trail=Math.max(x1+900,x2+1500,x3+60),k=134.6;
+  $('w1').style.clipPath=`polygon(0 0,${lead+k}px 0,${lead-k}px 1080px,0 1080px)`;
+  $('w3').style.clipPath=`polygon(${trail+k}px 0,1920px 0,1920px 1080px,${trail-k}px 1080px)`;
+  const on=t>3.45&&t<4.2;$('slabs').style.visibility=on?'visible':'hidden';if(!on)return;
+  tf($('slab1'),{x:x1,skx:-14});
+  tf($('slab2'),{x:x2,skx:-14});
+  tf($('slab3'),{x:x3,skx:-14});
+}
+
+function s3(t){
+  const el=$('s3');const on=t>3.7&&t<6.75;vis(el,on);if(!on)return;
+  reveal($('h3a'),t,3.82,0,0.8,150);reveal($('h3b'),t,3.95,0,0.8,150);
+  tf($('eb3'),{o:A(t,3.9,4.3,'outCubic'),x:(1-A(t,3.9,4.5))*-30});
+  tf($('sub3'),{o:A(t,4.35,4.9,'outCubic'),y:(1-A(t,4.35,5,'outExpo'))*30});
+  // card entrance
+  const pc=A(t,3.9,4.75,'outExpo');
+  tf($('form'),{x:(1-pc)*420,ry:lerp(-38,-9,pc)+A(t,4.75,6.4,'inOutCubic')*5,rx:lerp(8,2,pc),o:A(t,3.9,4.2,'lin')});
+  $('form').parentElement.style.perspective='2400px';
+  // row completion
+  const T=[4.55,4.9,5.25,5.6];
+  const rows=document.querySelectorAll('#rows .row');
+  let done=0;
+  rows.forEach((r,i)=>{
+    const p=A(t,T[i],T[i]+0.35,'outBack'); if(t>=T[i])done++;
+    tf(r.querySelector('.ck'),{s:clamp(p,0,1.2),o:p>0?1:0});
+    dash(r.querySelector('.ckp'),A(t,T[i]+0.08,T[i]+0.3,'outCubic'));
+    r.querySelector('.n').style.opacity=1-P(t,T[i],T[i]+0.1);
+    tf(r.querySelector('.done'),{o:A(t,T[i]+0.1,T[i]+0.3,'lin'),x:(1-A(t,T[i]+0.1,T[i]+0.5))*16});
+    const rin=A(t,4.1+i*0.06,4.7+i*0.06,'outExpo');tf(r,{y:(1-rin)*30,o:rin});
+  });
+  // active row glide
+  let ay=0;for(let i=0;i<4;i++){ay+=A(t,T[i]-0.02,T[i]+0.28,'inOutExpo')*(i<3?104:0);}
+  tf($('active'),{y:ay,o:A(t,4.3,4.5,'lin')*(1-A(t,5.7,5.9,'lin'))});
+  $('fBar').style.width=(100*lerp(0,1,(A(t,T[0],T[0]+0.3)+A(t,T[1],T[1]+0.3)+A(t,T[2],T[2]+0.3)+A(t,T[3],T[3]+0.3))/4))+'%';
+  $('fCount').textContent=`${done} of 4 sections complete`;
+  // submit press + status swap
+  const sw=A(t,5.72,5.95,'outExpo');$('fBtnSweep').style.width=(sw*100)+'%';
+  const press=Math.exp(-Math.pow((t-5.93)/0.05,2));tf($('fBtn'),{y:press*2,s:1-press*0.03});
+  const ps=A(t,5.95,6.3,'outBack');tf($('fDraft'),{o:1-P(t,5.95,6.05),s:1-P(t,5.95,6.05)*0.3});tf($('fSub'),{s:ps,o:P(t,5.95,6.02)});
+  // exit
+  const ex=A(t,6.28,6.62,'inExpo');
+  tf(el,{s:(1+0.04*A(t,4,6.3,'lin'))*(1+ex*0.35),blur:ex*14,o:1-A(t,6.42,6.58,'lin')});
+}
+
+function s4(t){
+  const el=$('s4');const on=t>6.35&&t<10.25;vis(el,on);if(!on)return;
+  const en=A(t,6.5,7.05,'outExpo');
+  reveal($('h4'),t,6.6,0.06,0.75,150);
+  tf($('eb4'),{o:A(t,6.6,6.9,'lin')*(1-A(t,9.45,9.7,'lin'))});
+  const ST=[7.15,7.5,7.85,8.2];
+  tiles.forEach((tl,i)=>{
+    const p=A(t,6.62+i*0.07,7.35+i*0.07,'outExpo');
+    // exit: tiles 0-2 fall away, tile 3 travels to s5 doc position (crossfade)
+    const ex=A(t,9.45+i*0.05,9.95+i*0.05,'inExpo');
+    let x=0,y=(1-p)*260,rx=(1-p)*50,o=p,s=1,r=0;
+    if(i<3){y+=ex*700;r=ex*(i-1)*14;o*=1-ex;}
+    else{const q=A(t,9.4,10.05,'inOutExpo');x=q*(1020+380-(135+3*420+195));y+=q*(840-(430+205));s=lerp(1,0.62,q);o*=1-A(t,9.85,10.05,'lin');}
+    tf(tl,{x,y,rx,s,r,o});
+    tl.style.transformOrigin='50% 50%';
+    // scan
+    const a=ST[i],b=a+0.6;
+    const ps=P(t,a,b);
+    const beam=tl.querySelector('.beam'),fill=tl.querySelector('.scanfill');
+    const bp=E.inOutCubic(ps);beam.style.top=(bp*164-1)+'px';beam.style.opacity=(ps>0&&ps<1)?1:0;
+    fill.style.height=(bp*164)+'px';fill.style.opacity=(ps>0&&ps<1)?1:0;
+    const q=tl.querySelector('.sq'),rn=tl.querySelector('.sr'),v=tl.querySelector('.sv');
+    tf(q,{o:1-P(t,a-0.05,a+0.05)});
+    tf(rn,{o:P(t,a-0.05,a+0.05)*(1-P(t,b,b+0.08))});
+    const pv=A(t,b,b+0.35,'outBack');tf(v,{o:P(t,b,b+0.06),x:(1-A(t,b,b+0.4))*-12});
+    const sic=v.querySelector('.sic');tf(sic,{s:clamp(pv,0,1.3)});
+    const svp=v.querySelector('.svp');if(svp)dash(svp,A(t,b+0.08,b+0.3,'outCubic'));
+    rn.querySelector('.ibar b').style.left=((((t-a)*1.6)%1.4)*100-40)+'%';
+    rn.querySelector('.spin').style.transform=`rotate(${t*720}deg)`;rn.querySelector('.spin').style.transformOrigin='50% 50%';
+    const hl=tl.querySelector('.hl'),hlt=tl.querySelector('.hlt');
+    if(i===3){const ph=A(t,b+0.05,b+0.45,'outExpo');hl.style.width=(ph*230)+'px';hl.style.opacity=1;hlt.style.opacity=A(t,b+0.2,b+0.4,'lin');
+      const sh=Math.exp(-Math.pow((t-(b+0.08))/0.12,2));tl.style.boxShadow=`0 50px 90px -30px rgba(0,0,0,.7),0 0 0 ${3*A(t,b,b+0.2)}px var(--warnL),0 0 ${60*sh}px ${10*sh}px rgba(245,207,134,.6)`;
+      tl.style.transform+=` translateX(${Math.sin(t*90)*9*sh}px)`;
+    } else {hl.style.opacity=0;hlt.style.opacity=0;}
+  });
+  tf($('band4'),{o:A(t,8.9,9.3,'lin')*(1-A(t,9.4,9.6,'lin')),y:(1-A(t,8.9,9.4))*14});
+  hide($('h4'),t,9.4,0.04,0.35);
+  tf(el,{s:lerp(0.9,1,en)*(1+0.03*A(t,6.4,9.5,'lin')),blur:(1-en)*12});
+}
+
+function s5(t){
+  const el=$('s5');const on=t>9.5&&t<13.35;vis(el,on);if(!on)return;
+  reveal($('h5'),t,9.72,0.05,0.75,150);
+  tf($('eb5'),{o:A(t,9.75,10.1,'lin')});
+  const pl=A(t,9.75,10.45,'outExpo');tf($('list5'),{y:(1-pl)*120,o:pl});
+  document.querySelectorAll('#lrows .lrow').forEach((r,i)=>{const p=A(t,9.95+i*0.05,10.5+i*0.05);tf(r,{x:(1-p)*-40,o:p});
+    const sh=r.querySelector('.shackle');
+    if(i===1){const u=A(t,10.72,11.0,'outBack');sh.style.transform=`translate(${u*4}px,${-u*2.5}px) rotate(${u*22}deg)`;sh.style.transformOrigin='16px 11px';
+      r.querySelector('svg').style.stroke=u>0.5?'#9A4A00':'#616C7A';
+      tf(r.querySelector('.ro'),{o:1-P(t,10.75,10.85)});tf(r.querySelector('.op'),{o:P(t,10.78,10.9),s:clamp(A(t,10.78,11.05,'outBack'),0,1.2)});
+      r.style.background=`rgba(255,246,229,${0.9*A(t,10.75,11)})`;r.style.boxShadow=`inset 5px 0 0 rgba(154,74,0,${A(t,10.75,11)})`;}
+    else{r.style.opacity=(p*(1-0.45*A(t,10.7,11)))}
+    if(i>1){tf(r,{x:(1-p)*-40,y:(1-A(t,10.95,11.35,'outExpo'))*-150,o:p*(1-0.45*A(t,10.7,11))});}
+  });
+  const f=$('field5');const pf=A(t,10.95,11.35,'outExpo');f.style.clipPath=`inset(0 0 ${(1-pf)*100}% 0)`;f.style.opacity=pf;
+  // odometer 48 -> 62
+  const po=E.inOutCubic(P(t,11.35,11.9));
+  const val=lerp(48,62,po);
+  const tens=Math.floor(val/10)+ (val%10>9?(val%10-9):0);
+  const ones=val%10;
+  $('od1').firstChild.style.transform=`translateY(${-lerp(4,6,E.inOutCubic(P(t,11.55,11.9)))*40}px)`;
+  $('od2').firstChild.style.transform=`translateY(${-(8+po*14)*40}px)`;
+  $('inp5').style.borderColor=t>11.3&&t<12.1?'#175CD3':'#D9DEE5';
+  $('inp5').style.boxShadow=t>11.3&&t<12.1?'0 0 0 4px rgba(23,92,211,.18)':'none';
+  tf($('chg5'),{o:P(t,11.92,12.0),s:clamp(A(t,11.92,12.2,'outBack'),0,1.2)});
+  // feedback card
+  const pb=A(t,10.1,10.75,'outExpo');tf($('fb5'),{x:(1-pb)*300,o:pb});
+  const conn=$('connP');conn.style.strokeDasharray='1 1';conn.style.strokeDashoffset=1-A(t,10.55,10.9,'inOutCubic');conn.style.opacity=1-A(t,12.5,12.7,'lin');
+  // state: open -> addressed (12.1) -> resolved (12.55)
+  const a1=P(t,12.08,12.16),a2=P(t,12.52,12.6);
+  tf($('fbOpen'),{o:1-a1,s:1-a1*0.2});
+  tf($('fbAddr'),{o:a1*(1-a2),s:clamp(A(t,12.08,12.35,'outBack'),0,1.2)*(1-a2*0.2)});
+  tf($('fbRes'),{o:a2,s:clamp(A(t,12.52,12.8,'outBack'),0.001,1.2)});
+  $('fbNum').style.background=t<12.08?'#C26A00':t<12.52?'#175CD3':'#067647';
+  tf($('fbNum'),{s:1+0.18*Math.exp(-Math.pow((t-12.1)/0.06,2))+0.22*Math.exp(-Math.pow((t-12.55)/0.06,2))});
+  $('fbOne').style.opacity=1-P(t,12.52,12.58);dash($('fbChkP'),A(t,12.56,12.78,'outCubic'));
+  tf($('fbCtx'),{o:A(t,12.0,12.25,'lin'),x:(1-A(t,12,12.4))*-14});
+  // doc card
+  const pd=A(t,9.85,10.2,'outCubic');tf($('doc5'),{o:pd});
+  const rp=A(t,12.2,12.45,'inOutExpo');tf($('d5old'),{y:-rp*28,o:1-rp});tf($('d5new'),{y:(1-rp)*28,o:rp});
+  tf($('d5iss'),{o:1-P(t,12.32,12.4)});tf($('d5ok'),{o:P(t,12.34,12.42),s:clamp(A(t,12.34,12.62,'outBack'),0.001,1.2)});
+  tf($('d5rep'),{o:A(t,12.2,12.4,'lin'),s:clamp(A(t,12.2,12.45,'outBack'),0.001,1.2)});
+  // whip pan exit
+  const ex=A(t,12.78,13.22,'inOutExpo');
+  tf(el,{x:-ex*1500,s:1+0.02*A(t,9.8,12.8,'lin'),blur:Math.sin(ex*Math.PI)*16});
+}
+
+function s6(t){
+  const el=$('s6');const on=t>12.75&&t<16.25;vis(el,on);if(!on)return;
+  const en=A(t,12.78,13.25,'inOutExpo');
+  reveal($('h6'),t,13.1,0.05,0.7,150);
+  tf($('eb6'),{o:A(t,13.1,13.4,'lin')});
+  // rule draw 13.35 -> 15.35
+  const pr=E.inOutSine(P(t,13.35,15.35));
+  const rw=2080*pr;$('rule').style.width=rw+'px';
+  $('ruleHead').style.left=(240+rw-7)+'px';$('ruleHead').style.opacity=(pr>0&&pr<1)?1:0;
+  const pan=-A(t,13.55,15.45,'inOutCubic')*760;
+  tf($('track'),{x:pan});
+  nodes.forEach((n,i)=>{
+    const x=NODES[i][0]; const ti=13.35+2.0*inv(( x-240)/2080);
+    const p=A(t,ti,ti+0.45,'outBack');
+    const nb=n.querySelector('.nb');nb.style.opacity=clamp(p*3);nb.style.transform=`translate(-50%,${(1-clamp(p))*30}px) scale(${clamp(p,0,1.2)})`;
+    const d=n.querySelector('.dot');d.style.borderColor=t>=ti?(i===4?'#12B76A':'#fff'):'rgba(255,255,255,.25)';
+    tf(d.querySelector('b'),{s:t>=ti?clamp(A(t,ti,ti+0.3,'outBack'),0,1.3):0.35,o:t>=ti?1:0.35});
+    const hp=P(t,ti,ti+0.6);tf(n.querySelector('.halo'),{s:lerp(0.4,1.8,E.outExpo(hp)),o:hp>0?(1-hp)*0.8:0});
+    const c=n.querySelector('.cap');c.style.opacity=A(t,ti+0.1,ti+0.4,'lin');
+  });
+  // logs: each appears in sync, list scrolls up keeping last 4 visible
+  const LT=[13.4,14.05,14.4,14.72,15.05,15.4];
+  let shown=0;LT.forEach(x=>{if(t>=x)shown++;});
+  let scroll=0;LT.forEach((x,i)=>{if(i>=4)scroll+=A(t,x,x+0.3,'outExpo')*40;});
+  logs.forEach((lg,i)=>{const p=A(t,LT[i],LT[i]+0.35);tf(lg,{x:(1-p)*-30,y:-scroll,o:p*(i===shown-1?1:0.55)});lg.querySelector('.k').style.color=i===shown-1?'#fff':'#AEB6C2';});
+  tf($('rolesEb'),{o:A(t,13.9,14.3,'lin')});
+  document.querySelectorAll('#roles .role').forEach((r,i)=>{const p=A(t,14.0+i*0.1,14.5+i*0.1,'outBack');r.style.opacity=clamp(p*2);r.style.transform=`translateY(${(1-clamp(p))*24}px) scale(${clamp(p,0,1.2)})`;});
+  // exit: zoom into approved node
+  const ex=A(t,15.72,16.12,'inExpo');
+  const nx=2320-760; // approved screen x after pan
+  el.style.transformOrigin=`${nx}px 520px`;
+  tf(el,{x:(1-en)*1500,s:1+ex*2.4,blur:Math.max(Math.sin(en*Math.PI)*16,ex*14),o:1-A(t,16.0,16.14,'lin')});
+}
+function inv(x){return x;} // node time mapping is linear in position along the eased rule; approximate below
+// rule is eased (inOutQuart); find the time where the eased rule reaches x
+function ruleTime(frac){let lo=0,hi=1;for(let k=0;k<30;k++){const m=(lo+hi)/2;if(E.inOutSine(m)<frac)lo=m;else hi=m;}return lo;}
+function inv2(f){return ruleTime(f);}
+
+function s7(t){
+  const el=$('s7');const on=t>15.85&&t<18.3;vis(el,on);if(!on)return;
+  tf($('eb7'),{o:A(t,16.05,16.4,'lin')*(1-A(t,17.8,18,'lin'))});
+  const pc=A(t,15.95,16.75,'spring');
+  const cert=$('cert');
+  tf(cert,{y:(1-pc)*260,rx:(1-pc)*70,s:lerp(0.86,1,pc),o:A(t,15.95,16.15,'lin')});
+  // stamp
+  const ps=P(t,16.72,16.95);const land=E.inExpo(ps);
+  const post=t>16.95?Math.exp(-(t-16.95)*9)*Math.sin((t-16.95)*60):0;
+  tf($('seal'),{s:lerp(2.6,1,land)+post*0.04,r:lerp(-40,-10,land),o:ps>0?clamp(ps*3):0,blur:(1-land)*6});
+  if(t>16.95){cert.style.transform+=` translate(${post*6}px,${post*4}px)`;}
+  // licence number scramble
+  $('licNo').textContent=scramble('FEL-2026-000005',t,16.3,0.03,30);
+  // pill
+  const pp=A(t,16.95,17.35,'outBack');tf($('apPill'),{y:(1-clamp(pp))*40,s:clamp(pp,0.001,1.15),o:clamp(pp*3)});
+  // sheen
+  const sh=P(t,17.15,17.75);$('sheen').style.left=lerp(-400,1300,E.inOutCubic(sh))+'px';$('sheen').style.opacity=sh>0&&sh<1?1:0;
+  // exit
+  const ex=A(t,17.78,18.2,'inExpo');
+  tf(el,{s:1-ex*0.35,y:-ex*80,o:1-ex,blur:ex*10});
+}
+
+function s8(t){
+  const el=$('s8');const on=t>17.9;vis(el,on);if(!on)return;
+  const pb=A(t,17.95,18.35,'outBack');tf($('eBox'),{s:clamp(pb,0,1.2),r:(1-clamp(pb))*-20});
+  dash($('e1'),A(t,18.12,18.34,'outCubic'));dash($('e2'),A(t,18.18,18.38,'outCubic'));dash($('e3'),A(t,18.24,18.4,'outCubic'));dash($('e4'),A(t,18.32,18.55,'outCubic'));
+  reveal($('eWord'),t,18.05,0.03,0.7,150);
+  reveal($('tag8'),t,18.45,0.07,0.8,150);
+  tf($('url8'),{o:A(t,18.95,19.3,'lin'),y:(1-A(t,18.95,19.5))*20});
+  tf($('disc8'),{o:A(t,19.1,19.5,'lin')});
+  tf(el,{s:1.04-0.04*A(t,17.95,20,'outCubic')});
+}
+
+function hud(t,frame){
+  const on=A(t,2.0,2.4,'lin')*(1-A(t,17.85,18.1,'lin'));
+  $('hud').style.opacity=on;
+  const lab=t<3.9?'00 · INTRO':t<6.5?'01 · APPLY':t<9.9?'02 · CHECK':t<13?'03 · FIX':t<15.95?'04 · TRACK':'05 · ISSUE';
+  const starts={'00 · INTRO':2.0,'01 · APPLY':3.9,'02 · CHECK':6.5,'03 · FIX':9.9,'04 · TRACK':13,'05 · ISSUE':15.95};
+  $('hTR').textContent=scramble(lab,t,starts[lab],0.03,30);
+  const fr=Math.floor(t*60)%60, s=Math.floor(t);
+  $('hBL').textContent=`TC 00:00:${String(s).padStart(2,'0')}:${String(fr).padStart(2,'0')}   ·   1920×1080   ·   60 FPS`;
+  $('hProg').style.width=(100*t/DUR)+'%';
+}
+
+let ready=false;
+window.seek=function(t,frame){
+  if(!ready){layout();ready=true;}
+  sceneBG(t);s1(t);slabs(t);s3(t);s4(t);s5(t);s6(t);s7(t);s8(t);hud(t,frame);
+  grain(frame??Math.floor(t*60));
+};
+// node timing uses the eased rule
+inv=f=>inv2(f);
+window.fontsReady=document.fonts.ready.then(()=>{layout();ready=true;return true;});
+// preview mode: ?t=5.2 or play loop
+const q=new URLSearchParams(location.search);
+if(q.has('play')){let t0=null;const loop=ts=>{if(t0===null)t0=ts;const t=((ts-t0)/1000)%DUR;seek(t);requestAnimationFrame(loop)};document.fonts.ready.then(()=>requestAnimationFrame(loop));}
+else if(q.has('t')){document.fonts.ready.then(()=>seek(parseFloat(q.get('t'))));}
+</script>
+</body>
+</html>

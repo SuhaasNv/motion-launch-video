@@ -1,0 +1,7 @@
+node_modules/
+__pycache__/
+*.pyc
+render/
+stills/
+check/
+*.wav
