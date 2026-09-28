@@ -1,10 +1,12 @@
 # motion-launch-video
 
+![motion-launch-video: launch films, made in code. Frames from the PermitFlow showreel, made with this skill](docs/thumbnail.png)
+
 A Claude skill that makes a motion-graphics launch video for any product, entirely in code, in the product's own brand.
 
 The film is one HTML page whose every frame is a pure function of time. Headless Chromium renders it at 120 fps, pairs of frames are blended to 60 fps for real motion blur, and a score synthesised in Python puts every hit, tick and whoosh on the frame that causes it. Output: a 1920x1080 60 fps MP4 with sound, a poster frame and a 720p web copy.
 
-It was extracted from the [PermitFlow](https://permitflow.space) showreel, which is included as a worked example.
+It was extracted from the [PermitFlow](https://permitflow.space) showreel, which is included as a worked example. The frames in the picture above are from that film.
 
 ## Install
 
@@ -40,3 +42,11 @@ node ../$S/scripts/render.mjs full film.html render 120 4   # adjust paths to wh
 SKILL_DIR=<path to motion-launch-video> python3 score.py
 bash <path>/scripts/assemble.sh render score.wav template-film
 ```
+
+## Reuse it
+
+MIT licensed (see `LICENSE`): use it for your own launches or clients, fork it, change the templates, ship it inside your own skills or tools. Keep the licence notice with copies of the code.
+
+Two things are not covered by this repo's licence and stay your responsibility in each film: the fonts (the template points at `fonts/*.woff2` that you supply; use the product's own files and check their licence allows embedding) and the product's brand (logo, name, copy). PermitFlow's name and mark in the worked example belong to that project; replace them in your own films.
+
+Improvements are welcome as pull requests, especially new transitions and moments for `references/motion-playbook.md`, instruments for `scripts/score_engine.py`, and fixes found while making real films.
